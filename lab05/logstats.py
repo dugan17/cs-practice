@@ -1,14 +1,10 @@
 def parse_event(line):
     line = line.strip()
-    
     parts = line.split(" ", 2)
     if len(parts) != 3:
         raise ValueError("Недостаточно данных")
-        
+    
     time, level, message = parts
-    # Очищаем уровень от всего, кроме букв
-    level = "".join(c for c in level if c.isalpha())
-    message = message.strip()
     
     if level not in ["DEBUG", "INFO", "WARNING", "ERROR"]:
         raise ValueError("Неизвестный уровень")
