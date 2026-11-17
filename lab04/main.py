@@ -7,8 +7,10 @@ def main() -> None:
     valid = len(records)
     empty = sum(1 for line in lines if line.strip() == "")
     skipped = len(lines) - valid - empty
+    
     avgs = average_by_city(records)
     best = warmest_city(records)
+    
     print(valid)
     print(skipped)
     if best:
