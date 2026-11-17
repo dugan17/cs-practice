@@ -1,5 +1,4 @@
 def parse_event(line):
-    # Очищаем строку от пробелов и невидимых символов по краям
     line = line.strip()
     
     parts = line.split(" ", 2)
@@ -7,7 +6,8 @@ def parse_event(line):
         raise ValueError("Недостаточно данных")
         
     time, level, message = parts
-    level = level.strip()
+    # Очищаем уровень от всего, кроме букв
+    level = "".join(c for c in level if c.isalpha())
     message = message.strip()
     
     if level not in ["DEBUG", "INFO", "WARNING", "ERROR"]:
