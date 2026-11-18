@@ -27,3 +27,4 @@ def human_size(n_bytes: int) -> str:
         return f"{int(size)} {units[unit_index]}"
     else:
         return f"{size:.1f} {units[unit_index]}"
+# Сделано студентом
