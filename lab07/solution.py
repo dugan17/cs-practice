@@ -24,3 +24,4 @@ def records_to_json(records: list[dict]) -> str:
         return "[]"
         
     return json.dumps(records, ensure_ascii=False, sort_keys=True)
+# Сделано студентом
