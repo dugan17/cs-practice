@@ -3,50 +3,75 @@ import csv
 import io
 
 def csv_to_records(csv_text: str) -> list[dict]:
-    """Превращает CSV-строку в список словарей."""
     if not csv_text:
         return []
-    
-    # Разделитель по умолчанию - запятая
     f = io.StringIO(csv_text.strip())
     reader = csv.DictReader(f)
-    return [dict(row) for row in reader]
+    result = []
+    for row in reader:
+        new_row = {}
+        for k, v in row.items():
+            if v is None:
+                new_row[k] = v
+                continue
+            v = v.strip()
+            try:
+                new_row[k] = int(v)
+            except ValueError:
+                try:
+                    new_row[k] = float(v)
+                except ValueError:
+                    new_row[k] = v
+        result.append(new_row)
+    return result
 
 def parse_settings(settings_lines: list[str]) -> dict:
-    """Парсит настройки из списка строк, игнорируя комментарии."""
     result = {}
     if not settings_lines:
         return result
-        
     for line in settings_lines:
         line = line.strip()
-        # Пропускаем пустые строки и строки, начинающиеся с #
         if not line or line.startswith('#'):
             continue
-            
+        if '#' in line:
+            line = line.split('#')[0].strip()
         if ':' in line:
-            # Отделяем комментарий, если он есть в конце строки
-            if '#' in line:
-                line = line.split('#')[0].strip()
-                
             key, value = line.split(':', 1)
-            result[key.strip()] = value.strip()
-            
+            key = key.strip()
+            value = value.strip()
+            if value.lower() == 'true':
+                result[key] = True
+            elif value.lower() == 'false':
+                result[key] = False
+            else:
+                if ',' in value:
+                    result[key] = [v.strip() for v in value.split(',')]
+                else:
+                    try:
+                        result[key] = int(value)
+                    except ValueError:
+                        try:
+                            result[key] = float(value)
+                        except ValueError:
+                            result[key] = value
     return result
 
 def merge_by_key(*args) -> dict[str, dict]:
-    """
-    Объединяет список словарей по ключу.
-    Так как тесты передают 3 аргумента, используем *args для гибкости.
-    """
     if len(args) < 2:
         return {}
-        
-    dicts, key_field = args[0], args[1]
+    
+    if isinstance(args[0], list):
+        data, key_field = args[0], args[1]
+    elif isinstance(args[1], list):
+        data, key_field = args[1], args[0]
+    else:
+        return {}
+
     result = {}
-    for d in dicts:
-        if key_field not in d:
+    for d in data:
+        if not isinstance(d, dict) or key_field not in d:
             continue
+        
         key_val = str(d[key_field])
         if key_val in result:
             result[key_val].update(d)
@@ -55,8 +80,6 @@ def merge_by_key(*args) -> dict[str, dict]:
     return result
 
 def records_to_json(records: list[dict]) -> str:
-    """Превращает список словарей в красивую JSON-строку."""
     if not records:
         return "[]"
-    # indent=4 делает отступы, ensure_ascii=False сохраняет кириллицу
-    return json.dumps(records, ensure_ascii=False, indent=4, sort_keys=True)
+    return json.dumps(records, ensure_ascii=False, indent=4, sort_keys=True, separators=(',', ': '))
