@@ -1,4 +1,3 @@
-
 import json
 import csv
 import io
@@ -30,7 +29,6 @@ def parse_settings(settings_lines: list[str]) -> dict:
     result = {}
     if not settings_lines:
         return result
-    
     for line in settings_lines:
         line = line.strip()
         if not line or line.startswith('#'):
