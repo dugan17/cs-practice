@@ -1,3 +1,4 @@
+
 import json
 import csv
 import io
@@ -29,6 +30,7 @@ def parse_settings(settings_lines: list[str]) -> dict:
     result = {}
     if not settings_lines:
         return result
+    
     for line in settings_lines:
         line = line.strip()
         if not line or line.startswith('#'):
@@ -43,35 +45,32 @@ def parse_settings(settings_lines: list[str]) -> dict:
                 result[key] = True
             elif value.lower() == 'false':
                 result[key] = False
+            elif ',' in value:
+                result[key] = [v.strip() for v in value.split(',')]
             else:
-                if ',' in value:
-                    result[key] = [v.strip() for v in value.split(',')]
-                else:
+                try:
+                    result[key] = int(value)
+                except ValueError:
                     try:
-                        result[key] = int(value)
+                        result[key] = float(value)
                     except ValueError:
-                        try:
-                            result[key] = float(value)
-                        except ValueError:
-                            result[key] = value
+                        result[key] = value
     return result
 
 def merge_by_key(*args) -> dict[str, dict]:
-    if len(args) < 2:
+    if not args:
         return {}
-    
-    if isinstance(args[0], list):
-        data, key_field = args[0], args[1]
-    elif isinstance(args[1], list):
-        data, key_field = args[1], args[0]
-    else:
-        return {}
-
+    data = []
+    key_field = "id"
+    for arg in args:
+        if isinstance(arg, list):
+            data = arg
+        elif isinstance(arg, str):
+            key_field = arg
     result = {}
     for d in data:
         if not isinstance(d, dict) or key_field not in d:
             continue
-        
         key_val = str(d[key_field])
         if key_val in result:
             result[key_val].update(d)
@@ -82,4 +81,4 @@ def merge_by_key(*args) -> dict[str, dict]:
 def records_to_json(records: list[dict]) -> str:
     if not records:
         return "[]"
-    return json.dumps(records, ensure_ascii=False, indent=4, sort_keys=True, separators=(',', ': '))
+    return json.dumps(records, ensure_ascii=False, indent=4, sort_keys=True)
