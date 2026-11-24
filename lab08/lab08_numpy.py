@@ -83,3 +83,4 @@ print("Форма numbers:", numbers.shape)
 print("Форма table:", table.shape)
 print("Форма transposed:", transposed.shape)
 # reshape(3, 4) работает, так как 3 * 4 = 12 (совпадает с числом элементов). reshape(5, 3) вызовет ошибку, так как 5 * 3 = 15, а элементов всего 12.
+
